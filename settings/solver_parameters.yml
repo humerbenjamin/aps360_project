@@ -1,18 +1,18 @@
 # solov'ev equilibrium parameters
     # constants
-    a_min: 0
-    a_max: 1
+    a_min: 1
+    a_max: 2
     b_min: 0
-    b_max: 1
-    c0_min: 0
-    c0_max: 1
+    b_max: 3
+    c0_min: 0.8
+    c0_max: 1.5
     # plasma Geometry
     R_axis_min: 1
     R_axis_max: 2
     # number of entries in the arrays
     num_psi: 100
     # number of variations in solver (total = num_a*num_b*num_c0)
-    num_a: 100
-    num_b: 100
-    num_c0: 100
-    num_R_axis: 10
+    num_a: 2
+    num_b: 2
+    num_c0: 2
+    num_R_axis: 2

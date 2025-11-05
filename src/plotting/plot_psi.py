@@ -12,7 +12,7 @@ def plot_psi_colormap(R_grid, Z_grid, psi_grid):
     return
 
 
-def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values, R_axis):
+def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values, R_axis, statenumber=0):
     # plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({
         "text.usetex": True,            # use LaTeX
@@ -44,7 +44,7 @@ def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values
 
     # layout and save figure
     plt.tight_layout()
-    plt.savefig("output_plots/psi_colormap_contours.png")
+    plt.savefig(f"output_plots/{statenumber}_psi_colormap_contours.png")
     plt.close()
 
     return
