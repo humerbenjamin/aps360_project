@@ -2,13 +2,13 @@
     # constants
     a_min: 1
     a_max: 2
-    b_min: 0
-    b_max: 3
+    b_min: 0.2
+    b_max: 1
     c0_min: 0.8
     c0_max: 1.5
     # plasma Geometry
-    R_axis_min: 1
-    R_axis_max: 2
+    R_axis_min: 1.25
+    R_axis_max: 1.75
     # number of entries in the arrays
     num_psi: 100
     # number of variations in solver (total = num_a*num_b*num_c0)
@@ -16,3 +16,7 @@
     num_b: 2
     num_c0: 2
     num_R_axis: 2
+
+# plotting settings
+    # psi contour plot
+    num_psi_contours: 15

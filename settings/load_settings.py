@@ -16,7 +16,7 @@ def load_solver_parameters(printout=False):
     
     return data
 
-def load_synthetic_measurements(printout=False):
+def load_synthetic_measurement_settings(printout=False):
     with open("settings/synthetic_measurements.yml", "r") as f:
         data = yaml.safe_load(f)
     if printout:

@@ -1,45 +1,98 @@
 # import standard packages
+    # import packages
 import numpy as np
+    # import subpackages
 import scipy.constants as const
 import matplotlib.pyplot as plt
+    # import functions
+from matplotlib import contour
+from skimage import measure
+
 
 # imports from within this project
 from settings import load_machine_geometry, load_solver_parameters
-from src.plotting import plot_psi_colormap, plot_psi_colormap_with_contours
+from src.plotting import plot_psi_colormap, plot_psi_colormap_with_contours, plot_P_F_over_psi, plot_n_T_over_psi
+from src.load_save import save_single_equilibrium_state
 
 
 
 
-def define_multiple_equilibria():
+def define_multiple_equilibria(printouts=False, plot_quantities=True):
+    # load in solver parameters
+    solver_parameters = load_solver_parameters()
+    machine_geometry = load_machine_geometry()
 
-    a=2     # 1.5
-    b=0.5   # 0
-    c0=1    # 1
-    R0=1.5  # 
+    # initialize linearly spaced arrays
+    a_array = np.linspace(solver_parameters['a_min'], solver_parameters['a_max'], solver_parameters['num_a'])
+    b_array = np.linspace(solver_parameters['b_min'], solver_parameters['b_max'], solver_parameters['num_b'])
+    c0_array = np.linspace(solver_parameters['c0_min'], solver_parameters['c0_max'], solver_parameters['num_c0'])
+    R0_array = np.linspace(solver_parameters['R_axis_min'], solver_parameters['R_axis_max'], solver_parameters['num_R_axis'])
 
-    # check for non-degeneracy
-    if a - c0 <= 0 or c0*R0**2 - b <=0:
-        print("degenerate solution")
-        return
-    else:
-        print("non-degenerate solution")
-
-    # calculate the same mesh for all equilibria
+    # initialize mesh
     R_1D, Z_1D, R_2D, Z_2D = get_mesh()
 
+    test_params=False
+    if test_params:
+        a_array=[2]     # 1.5
+        b_array=[0.5]   # 0
+        c0_array=[1]    # 1
+        R0_array=[1.5]  # 
 
-    psi_2D = get_psi_on_mesh(R_2D, Z_2D, a, b, c0, R0, show_equilibrium=True)
-    psi_lcfs = get_psi_lcfs(psi_2D)
-    psi_1D = get_psi_1D(psi_lcfs, 10)
-    p_1D = get_p_1D(psi_1D, a)
 
-    plot_psi_colormap_with_contours(R_2D, Z_2D, psi_2D, psi_1D, R0)
+    statenumber = 0
+    degeneracy_counter = 0
+    non_degeneracy_counter = 0
+    for a in a_array:
+        for b in b_array:
+            for c0 in c0_array:
+                for R0 in R0_array:
 
-    print(psi_1D)
+                    # check for degeneracy
+                    if a - c0 <= 0 or c0*100**2 - b <=0:
+                        degeneracy_counter += 1
+                        if printouts:
+                            print("degenerate solution")
+                            print(a, b, c0, R0)
 
-    plt.plot(psi_1D, p_1D)
-    plt.savefig("output_plots/test.png")
-    plt.close()
+                    # if non degenerate solution 
+                    else:
+                        if printouts:
+                            print("non-degenerate solution")
+
+                        # get 2D psi information
+                        psi_2D, psi_axis = get_psi_on_mesh(R_2D, Z_2D, a, b, c0, R0, show_equilibrium=False)
+
+                        if np.min(psi_2D) >= 0:
+                            non_degeneracy_counter += 1
+                            
+                            # additional psi information
+                            psi_lcfs, lcfs_contour = find_last_closed_contour(psi_2D)
+                            psi_1D = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi'])
+                            psi_contours = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi_contours'])
+
+                            # other information
+                            p_1D = get_p_1D(psi_1D, a)
+                            F_1D = get_F_1D(psi_1D, b)
+                            n_1D, T_1D = get_n_T_from_p(p_1D)
+
+                            # plot quantities
+                            if plot_quantities:
+                                plot_psi_colormap_with_contours(R_2D, Z_2D, psi_2D, psi_contours, R0, statenumber)
+                                plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber)
+                                plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber)
+
+                            # save data
+                            data = {'settings':solver_parameters, 'geometry':machine_geometry,
+                                    'psi_1D':psi_1D, 'F_1D':F_1D, 'p_1D':p_1D, 'n_1D':n_1D, 'T_1D':T_1D
+                            }
+                            save_single_equilibrium_state(data, statenumber)
+                            statenumber += 1
+                        
+                        else:
+                            degeneracy_counter += 1
+
+
+    print("num_degenerate_solutions:", degeneracy_counter, "// num_non_degenerate_solutions:", non_degeneracy_counter)
 
     return 
 
@@ -94,7 +147,9 @@ def get_psi_on_mesh(R_2D, Z_2D, a, b, c0, R0, show_equilibrium=False):
     if show_equilibrium:
         plot_psi_colormap(R_2D, Z_2D, psi_2D)
 
-    return psi_2D
+    psi_axis = psi_of_R_Z(R0, 0, R0, a, b, c0)
+
+    return psi_2D, psi_axis
 
 
 # compute a 2-D mesh in R,Z 
@@ -148,7 +203,7 @@ def get_mesh(printout_machine_geometry=False):
 
 # get 1-D array of psi values from lcfs to the magnetic axis
 ####################################################################################################
-def get_psi_1D(psi_lcfs, num_psi):
+def get_psi_1D(psi_lcfs, psi_axis, num_psi):
     """
     Generate a 1D array of flux values between 0 and the LCFS.
 
@@ -169,7 +224,7 @@ def get_psi_1D(psi_lcfs, num_psi):
 
     (description from ChatGPT)
     """
-    return np.linspace(0, psi_lcfs, num_psi)
+    return np.linspace(psi_axis, psi_lcfs, num_psi)
 
 
 # get 1-D array of p values corresponding to psi in a range from the lcfs to the magnetic axis
@@ -245,6 +300,19 @@ def get_F_1D(psi, b):
     return F
 
 
+# get 1-D arrays of n and T values corresponding to psi in a range from the lcfs to the magnetic axis
+####################################################################################################
+def get_n_T_from_p(p_1D, n_plasma=5*10**20):
+    n_array = np.full(len(p_1D), n_plasma)
+    n_adjusted = np.full(len(p_1D), n_plasma*const.Boltzmann)
+    T_array = np.zeros(len(p_1D))
+    for i in range(len(T_array)):
+        T_array[i] = p_1D[i] / (n_adjusted[i]) * (8.617*10**(-5))
+
+    T_array[-1] = T_array[-2]
+    n_array[-1] = 0
+
+    return n_array, T_array
 
 
 ####################################################################################################
@@ -255,7 +323,7 @@ def get_F_1D(psi, b):
 
 # get the value of psi at the LCFS
 ####################################################################################################
-def get_psi_lcfs(psi_2D, print_lcfs_value=False):
+def get_psi_lcfs(psi_2D, err=1e-5, num_iter=50, print_lcfs_value=False):
     """
     Determine the flux value at the last closed flux surface (LCFS).
 
@@ -289,7 +357,63 @@ def get_psi_lcfs(psi_2D, print_lcfs_value=False):
     if print_lcfs_value:
         print(r"$\psi_\mathrm{lcfs}$" + f"={lcfs_psi:.4f}")
 
+
     return lcfs_psi
+
+
+def is_closed(contour, tol=1e-6):
+    """Check if a contour is closed (first and last points coincide)."""
+    return np.linalg.norm(contour[0] - contour[-1]) < tol
+
+
+def find_last_closed_contour(arr, start_level=None, end_level=None, step=0.01, verbose=False):
+    """
+    Iteratively adjusts contour level to find the last closed contour.
+
+    Parameters
+    ----------
+    arr : 2D numpy array
+        Scalar field (e.g. grayscale or elevation map)
+    start_level : float, optional
+        Starting contour level (defaults to min(arr))
+    end_level : float, optional
+        Ending contour level (defaults to max(arr))
+    step : float
+        Increment for level scanning
+    verbose : bool
+        Print debug info
+
+    Returns
+    -------
+    level : float
+        Level corresponding to the last closed contour
+    contour : np.ndarray or None
+        Coordinates of the last closed contour
+    """
+    start_level = start_level if start_level is not None else np.min(arr)
+    end_level = end_level if end_level is not None else np.max(arr)
+
+    last_closed = None
+    last_level = None
+
+    # Sweep from low → high level
+    for level in np.arange(start_level, end_level, step):
+        contours = measure.find_contours(arr, level=level)
+        closed = [c for c in contours if is_closed(c)]
+
+        if closed:
+            last_closed = closed[-1]   # last closed contour at this level
+            last_level = level
+
+            if verbose:
+                print(f"Level {level:.3f}: {len(closed)} closed contour(s) found")
+        else:
+            # Once we lose all closed contours, break
+            if last_closed is not None:
+                break
+
+    return last_level, last_closed
+
 
 
 # get the value of psi at a given R, Z pair for constants R0, a, b, c0

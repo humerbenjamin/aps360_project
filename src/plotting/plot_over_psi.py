@@ -21,5 +21,27 @@ def plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber=0):
     plt.savefig(f"output_plots/{statenumber}_F_p_psi.png")
     plt.close()
 
+    return
+
+
+def plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber=0):
+    fig, axs = plt.subplots(1,2, figsize=(10,4))
+    
+    # F of psi
+    axs[0].plot(psi_1D, n_1D)
+    axs[0].set_xlabel(r"$\psi\,[\mathrm{Wb}]$", fontsize=18)
+    axs[0].set_ylabel(r"$n\,[\mathrm{m^{-3}}]$", fontsize=18)
+    axs[0].grid(True)
+
+    # P of psi
+    axs[1].plot(psi_1D, T_1D)
+    axs[1].set_xlabel(r"$\psi\,[\mathrm{Wb}]$", fontsize=18)
+    axs[1].set_ylabel(r"$T\,[\mathrm{eV}]$", fontsize=18)
+    axs[1].grid(True)
+
+    plt.suptitle(r"$n(\psi)$ and $T(\psi)$", fontsize=24)
+    plt.tight_layout()
+    plt.savefig(f"output_plots/{statenumber}_n_T_psi.png")
+    plt.close()
 
     return
