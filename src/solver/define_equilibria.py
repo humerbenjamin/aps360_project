@@ -15,9 +15,15 @@ from src.plotting import plot_psi_colormap, plot_psi_colormap_with_contours, plo
 from src.load_save import save_single_equilibrium_state
 
 
+####################################################################################################
+####################################################################################################
+# MAIN FUNCTION TO DEFINE MULTIPLE EQUILIBRIA
+####################################################################################################
+####################################################################################################
 
-
-def define_multiple_equilibria(printouts=False, plot_quantities=True):
+# main function to define multiple equilibria
+####################################################################################################
+def define_multiple_equilibria(printouts=False, plot_quantities=False):
     # load in solver parameters
     solver_parameters = load_solver_parameters()
     machine_geometry = load_machine_geometry()
@@ -38,7 +44,7 @@ def define_multiple_equilibria(printouts=False, plot_quantities=True):
         c0_array=[1]    # 1
         R0_array=[1.5]  # 
 
-
+    # calculate states
     statenumber = 0
     degeneracy_counter = 0
     non_degeneracy_counter = 0
@@ -73,7 +79,7 @@ def define_multiple_equilibria(printouts=False, plot_quantities=True):
                             # other information
                             p_1D = get_p_1D(psi_1D, a)
                             F_1D = get_F_1D(psi_1D, b)
-                            n_1D, T_1D = get_n_T_from_p(p_1D)
+                            n_1D, T_1D = get_n_T_from_p(p_1D, psi_1D)
 
                             # plot quantities
                             if plot_quantities:
@@ -82,7 +88,7 @@ def define_multiple_equilibria(printouts=False, plot_quantities=True):
                                 plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber)
 
                             # save data
-                            data = {'settings':solver_parameters, 'geometry':machine_geometry,
+                            data = {'settings':{'a':a, 'b':b, 'c0':c0, 'R0':R0}, 'geometry':machine_geometry,
                                     'psi_1D':psi_1D, 'F_1D':F_1D, 'p_1D':p_1D, 'n_1D':n_1D, 'T_1D':T_1D
                             }
                             save_single_equilibrium_state(data, statenumber)
@@ -302,7 +308,7 @@ def get_F_1D(psi, b):
 
 # get 1-D arrays of n and T values corresponding to psi in a range from the lcfs to the magnetic axis
 ####################################################################################################
-def get_n_T_from_p(p_1D, n_plasma=5*10**20):
+def get_n_T_from_p(p_1D, psi_1D, n_plasma=5*10**20):
     n_array = np.full(len(p_1D), n_plasma)
     n_adjusted = np.full(len(p_1D), n_plasma*const.Boltzmann)
     T_array = np.zeros(len(p_1D))

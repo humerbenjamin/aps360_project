@@ -4,6 +4,8 @@ import src.solver.define_equilibria as define_equilibria
 import src.solver.generate_synthetic_measurements as generate_synthetic_measurements
 from src.load_save import initialize_data_saving_directories
 
+import src.plotting.plot_sensors as plot_sensors
+
 
 
 
@@ -13,3 +15,5 @@ if __name__ == '__main__':
     # define_equilibria.define_multiple_equilibria(True)
 
     generate_synthetic_measurements.generate_synthetic_measurements()
+
+    plot_sensors.plot_sensors_on_machine_geometry()
