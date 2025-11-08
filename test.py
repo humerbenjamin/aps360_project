@@ -14,11 +14,11 @@ import src.plotting.plot_sensors as plot_sensors
 
 
 if __name__ == '__main__':
-    initialize_data_saving_directories()
+    # initialize_data_saving_directories()
 
-    define_equilibria.define_multiple_equilibria()
+    # define_equilibria.define_multiple_equilibria()
 
-    generate_synthetic_measurements.generate_synthetic_measurements()
+    # generate_synthetic_measurements.generate_synthetic_measurements()
 
     plot_sensors.plot_sensors_on_machine_geometry()
 

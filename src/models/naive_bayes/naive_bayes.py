@@ -42,18 +42,22 @@ def calculate_naive_bayes_probabilities_single_substate(statenumber=0, substaten
 
     state_probabilities = state_probabilities / norm_coeff
 
+    print(state_probabilities)
+
+
     return state_probabilities
 
 
 
 
 def calculate_p_single_equilibrium(noisy_data, sensor_data):
-
     p=1
     for i in range(len(sensor_data)):
         for j in range(len(sensor_data[i])):
-            p = p*norm.pdf(noisy_data[i][j][1], loc=sensor_data[i][j], scale=noisy_data[i][j][4])
-            print(p, sensor_data[i][1], noisy_data[i][j])
+            offset = (noisy_data[i][j][1] - sensor_data[i][j]) / noisy_data[i][j][4]
+            p = p*norm.pdf(offset, loc=0, scale=1)
+            # print(p, sensor_data[i][j], noisy_data[i][j])
+            print(p, offset, norm.pdf(offset, loc=0, scale=1))
 
     print("\n\n")
 
