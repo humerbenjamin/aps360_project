@@ -8,7 +8,7 @@ from scipy.stats import norm
 
 # imports from within this project
     # properly defined functions
-from src.load_save import load_single_equilibrium_state, save_noisy_data_single_equilibrium_state
+from src.load_save import load_single_equilibrium_state, save_noisy_data_single_equilibrium_state, save_sensor_data_single_equilibrium_state
 from settings import load_synthetic_measurement_settings
     # misc functions
 from .define_equilibria import psi_of_R_Z
@@ -27,7 +27,6 @@ def generate_synthetic_measurements(rawdata_folder="data/rawdata/"):
     for i in range(len(synthetic_measurement_settings['n_sensors'][2])):
         synthetic_measurement_settings['n_sensors'][2][i] = float(synthetic_measurement_settings['n_sensors'][2][i])
 
-
     # get list of rawdata files
     file_paths = []
     with os.scandir(rawdata_folder) as entries:
@@ -41,6 +40,8 @@ def generate_synthetic_measurements(rawdata_folder="data/rawdata/"):
 
         # get values at different sensor locations
         T_values, n_values, b_values = get_values_at_sensor_positions(synthetic_measurement_settings, equilibrium)
+        state_data_synthetic = [T_values, n_values, b_values]
+        save_sensor_data_single_equilibrium_state(state_data_synthetic, i)
 
         # generate synthetic measurments
         state_data_noisy = {}
@@ -65,27 +66,27 @@ def get_noisy_sensor_values(T_values, n_values, b_values, synthetic_measurement_
     n_noisy = []
     b_noisy = []
 
+    # set up mean and stdev
     mu, sigma = 0, 1
-
 
     # get temperature values
     for i in range(len(synthetic_measurement_settings['T_sensors'][0])):
         x = np.random.normal(mu, sigma)
         p = norm.pdf(x, mu, sigma)
-        T_noisy.append([T_values[i] + x * synthetic_measurement_settings['T_sensors'][2][i], x, p, synthetic_measurement_settings['T_sensors'][2][i]])
+        T_noisy.append([T_values[i], T_values[i] + x * synthetic_measurement_settings['T_sensors'][2][i], x, p, synthetic_measurement_settings['T_sensors'][2][i]])
 
     # get density values
     for i in range(len(synthetic_measurement_settings['n_sensors'][0])):
         x = np.random.normal(mu, sigma)
         p = norm.pdf(x, mu, sigma)
-        n_noisy.append([n_values[i] + x * synthetic_measurement_settings['n_sensors'][2][i], x, p, synthetic_measurement_settings['n_sensors'][2][i]])
+        n_noisy.append([n_values[i], n_values[i] + x * synthetic_measurement_settings['n_sensors'][2][i], x, p, synthetic_measurement_settings['n_sensors'][2][i]])
 
 
     # get values of the magnetic field
     for i in range(len(synthetic_measurement_settings['b_sensors'][0])):
         x = np.random.normal(mu, sigma)
         p = norm.pdf(x, mu, sigma)
-        b_noisy.append([b_values[i] + x * synthetic_measurement_settings['b_sensors'][2][i], x, p, synthetic_measurement_settings['b_sensors'][2][i]])
+        b_noisy.append([b_values[i], b_values[i] + x * synthetic_measurement_settings['b_sensors'][2][i], x, p, synthetic_measurement_settings['b_sensors'][2][i]])
 
     return T_noisy, n_noisy, b_noisy
 

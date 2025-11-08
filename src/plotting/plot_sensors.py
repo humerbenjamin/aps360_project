@@ -33,6 +33,6 @@ def plot_sensors_on_machine_geometry():
 
     # layout and save figure
     plt.tight_layout()
-    plt.savefig(f"output_plots/sensors.png")
+    plt.savefig(f"data/plots/sensors.png")
     plt.close()
     return

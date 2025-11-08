@@ -18,7 +18,7 @@ def plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber=0):
 
     plt.suptitle(r"$F(\psi)$ and $p(\psi)$", fontsize=24)
     plt.tight_layout()
-    plt.savefig(f"output_plots/{statenumber}_F_p_psi.png")
+    plt.savefig(f"data/plots/{statenumber}_F_p_psi.png")
     plt.close()
 
     return
@@ -41,7 +41,7 @@ def plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber=0):
 
     plt.suptitle(r"$n(\psi)$ and $T(\psi)$", fontsize=24)
     plt.tight_layout()
-    plt.savefig(f"output_plots/{statenumber}_n_T_psi.png")
+    plt.savefig(f"data/plots/{statenumber}_n_T_psi.png")
     plt.close()
 
     return

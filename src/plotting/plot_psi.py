@@ -6,7 +6,7 @@ def plot_psi_colormap(R_grid, Z_grid, psi_grid):
     plt.xlabel("R")
     plt.ylabel("Z")
     plt.title(r"Poloidal Magnetic Flux $\psi(R,Z)$")
-    plt.savefig("output_plots/psi_colormap.png")
+    plt.savefig("data/plots/psi_colormap.png")
     plt.close()
 
     return
@@ -44,7 +44,7 @@ def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values
 
     # layout and save figure
     plt.tight_layout()
-    plt.savefig(f"output_plots/{statenumber}_psi_colormap_contours.png")
+    plt.savefig(f"data/plots/{statenumber}_psi_colormap_contours.png")
     plt.close()
 
     return

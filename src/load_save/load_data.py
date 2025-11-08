@@ -11,3 +11,9 @@ def load_noisedata_single_equilibrium_state(statenumber, state_folder_path='data
         data = pickle.load(f)
 
     return data
+
+def load_sensordata_single_equilibrium_state(statenumber, state_folder_path='data/sensordata/'):
+    with open(f'{state_folder_path}{statenumber}.pkl', 'rb') as f:
+        data = pickle.load(f)
+
+    return data
