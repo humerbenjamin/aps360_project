@@ -2,9 +2,9 @@
     # major radius
 R_maj_min: 0.5
 R_maj_max: 2.5
-num_R_maj: 100
+num_R_maj: 400
 
     # vertical extent
 Z_min: -1
 Z_max: 1
-num_Z: 200
+num_Z: 400

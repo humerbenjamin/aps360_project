@@ -12,10 +12,10 @@
     # number of entries in the arrays
     num_psi: 100
     # number of variations in solver (total = num_a*num_b*num_c0)
-    num_a: 2
-    num_b: 2
-    num_c0: 2
-    num_R_axis: 2
+    num_a: 1
+    num_b: 1000
+    num_c0: 1
+    num_R_axis: 1
 
 # plotting settings
     # psi contour plot

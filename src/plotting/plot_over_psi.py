@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 
 
 def plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber=0):
+    plt.rcParams.update({
+        "text.usetex": True,            # use LaTeX
+        "font.family": "serif",
+    })
     fig, axs = plt.subplots(1,2, figsize=(10,4))
     
     # F of psi
@@ -25,6 +29,10 @@ def plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber=0):
 
 
 def plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber=0):
+    plt.rcParams.update({
+        "text.usetex": True,            # use LaTeX
+        "font.family": "serif",
+    })
     fig, axs = plt.subplots(1,2, figsize=(10,4))
     
     # F of psi

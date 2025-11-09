@@ -1,6 +1,10 @@
 import matplotlib.pyplot as plt
 
 def plot_psi_colormap(R_grid, Z_grid, psi_grid):
+    plt.rcParams.update({
+        "text.usetex": True,            # use LaTeX
+        "font.family": "serif",
+    })
     plt.pcolormesh(R_grid, Z_grid, psi_grid, cmap="viridis_r")
     plt.colorbar(label=r"$\psi(R,Z)$")
     plt.xlabel("R")
@@ -13,7 +17,6 @@ def plot_psi_colormap(R_grid, Z_grid, psi_grid):
 
 
 def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values, R_axis, statenumber=0):
-    # plt.rcParams["font.family"] = "serif"
     plt.rcParams.update({
         "text.usetex": True,            # use LaTeX
         "font.family": "serif",
@@ -38,7 +41,7 @@ def plot_psi_colormap_with_contours(R_grid, Z_grid, psi_grid, psi_contour_values
     plt.tick_params(axis="both", which="major", labelsize=16)
     
     # title and legend
-    plt.title(r"Poloidal Magnetic Flux $\psi(R,Z)$", fontsize=20)
+    plt.title(r"Poloidal Magnetic Flux $\psi(R,Z)$", fontsize=24)
     plt.plot([],[], color='r', label=r"Closed Contours of Constant $\psi$")
     plt.legend(fontsize=18)
 

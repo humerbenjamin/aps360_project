@@ -13,7 +13,7 @@ def plot_sensors_on_machine_geometry():
         "font.family": "serif",
     })
     # set up figure
-    plt.figure(figsize=(9,7), dpi=250)
+    plt.figure(figsize=(7.5,7), dpi=250)
 
     # plot quantities
     plt.scatter(synthetic_measurement_settings['T_sensors'][0], synthetic_measurement_settings['T_sensors'][1], s=300, marker="x", color='r', label=r"$T$ Measurement Locations", zorder=5)

@@ -1,4 +1,5 @@
 import os
+import shutil
 import pickle
 
 def save_single_equilibrium_state(data, statenumber, rawdata_folder="data/rawdata/"):
@@ -35,4 +36,9 @@ def initialize_data_saving_directories():
 
     print("Data Directory Structure Initialized")
 
+    return
+
+def clear_data_directories():
+    shutil.rmtree('data/', ignore_errors=True)
+    initialize_data_saving_directories()
     return

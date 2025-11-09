@@ -1,6 +1,7 @@
 # import standard packages
     # import packages
 import numpy as np
+import sys
     # import subpackages
 import scipy.constants as const
 import matplotlib.pyplot as plt
@@ -37,12 +38,15 @@ def define_multiple_equilibria(printouts=False, plot_quantities=False):
     # initialize mesh
     R_1D, Z_1D, R_2D, Z_2D = get_mesh()
 
-    test_params=False
+    test_params=True
     if test_params:
         a_array=[2]     # 1.5
-        b_array=[0.5]   # 0
+        b_array=[0.2]   # 0
         c0_array=[1]    # 1
         R0_array=[1.5]  # 
+
+    total_equilibria = len(a_array) * len(b_array) * len(c0_array) * len(R0_array)
+    cur_equilibria_num = 1
 
     # calculate states
     statenumber = 0
@@ -53,52 +57,60 @@ def define_multiple_equilibria(printouts=False, plot_quantities=False):
             for c0 in c0_array:
                 for R0 in R0_array:
 
-                    # check for degeneracy
-                    if a - c0 <= 0 or c0*100**2 - b <=0:
-                        degeneracy_counter += 1
-                        if printouts:
-                            print("degenerate solution")
-                            print(a, b, c0, R0)
-
-                    # if non degenerate solution 
-                    else:
-                        if printouts:
-                            print("non-degenerate solution")
-
-                        # get 2D psi information
-                        psi_2D, psi_axis = get_psi_on_mesh(R_2D, Z_2D, a, b, c0, R0, show_equilibrium=False)
-
-                        if np.min(psi_2D) >= 0:
-                            non_degeneracy_counter += 1
-                            
-                            # additional psi information
-                            psi_lcfs, lcfs_contour = find_last_closed_contour(psi_2D)
-                            psi_1D = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi'])
-                            psi_contours = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi_contours'])
-
-                            # other information
-                            p_1D = get_p_1D(psi_1D, a)
-                            F_1D = get_F_1D(psi_1D, b)
-                            n_1D, T_1D = get_n_T_from_p(p_1D, psi_1D)
-
-                            # plot quantities
-                            if plot_quantities:
-                                plot_psi_colormap_with_contours(R_2D, Z_2D, psi_2D, psi_contours, R0, statenumber)
-                                plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber)
-                                plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber)
-
-                            # save data
-                            data = {'settings':{'a':a, 'b':b, 'c0':c0, 'R0':R0}, 'geometry':machine_geometry,
-                                    'psi_1D':psi_1D, 'F_1D':F_1D, 'p_1D':p_1D, 'n_1D':n_1D, 'T_1D':T_1D
-                            }
-                            save_single_equilibrium_state(data, statenumber)
-                            statenumber += 1
-                        
-                        else:
+                    try:
+                        # check for degeneracy
+                        if a - c0 <= 0 or c0*100**2 - b <=0:
                             degeneracy_counter += 1
+                            if printouts:
+                                print("degenerate solution")
+                                print(a, b, c0, R0)
+
+                        # if non degenerate solution 
+                        else:
+                            if printouts:
+                                print("non-degenerate solution")
+
+                            # get 2D psi information
+                            psi_2D, psi_axis = get_psi_on_mesh(R_2D, Z_2D, a, b, c0, R0, show_equilibrium=False)
+
+                            if np.min(psi_2D) >= 0:
+                                non_degeneracy_counter += 1
+                                
+                                # additional psi information
+                                psi_lcfs, lcfs_contour = find_last_closed_contour(psi_2D)
+                                psi_1D = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi'])
+                                psi_contours = get_psi_1D(psi_lcfs, 0, solver_parameters['num_psi_contours'])
+
+                                # other information
+                                p_1D = get_p_1D(psi_1D, a)
+                                F_1D = get_F_1D(psi_1D, b)
+                                n_1D, T_1D = get_n_T_from_p(p_1D, psi_1D)
+
+                                # plot quantities
+                                if plot_quantities:
+                                    plot_psi_colormap_with_contours(R_2D, Z_2D, psi_2D, psi_contours, R0, statenumber)
+                                    plot_P_F_over_psi(psi_1D, F_1D, p_1D, statenumber)
+                                    plot_n_T_over_psi(psi_1D, n_1D, T_1D, statenumber)
+
+                                # save data
+                                data = {'settings':{'a':a, 'b':b, 'c0':c0, 'R0':R0}, 'geometry':machine_geometry,
+                                        'psi_1D':psi_1D, 'F_1D':F_1D, 'p_1D':p_1D, 'n_1D':n_1D, 'T_1D':T_1D
+                                }
+                                save_single_equilibrium_state(data, statenumber)
+                                statenumber += 1
+                            
+                            else:
+                                degeneracy_counter += 1
+                    except:
+                        degeneracy_counter += 1
+
+                    progress_bar(cur_equilibria_num, total_equilibria, message="Computing Equilibrium States")
+                    cur_equilibria_num += 1
+                        
 
 
-    print("num_degenerate_solutions:", degeneracy_counter, "// num_non_degenerate_solutions:", non_degeneracy_counter)
+
+    print("\nnum_degenerate_solutions:", degeneracy_counter, "// num_non_degenerate_solutions:", non_degeneracy_counter)
 
     return 
 
@@ -421,7 +433,6 @@ def find_last_closed_contour(arr, start_level=None, end_level=None, step=0.01, v
     return last_level, last_closed
 
 
-
 # get the value of psi at a given R, Z pair for constants R0, a, b, c0
 ####################################################################################################
 def psi_of_R_Z(R, Z, R0, a, b, c0):
@@ -457,3 +468,14 @@ def psi_of_R_Z(R, Z, R0, a, b, c0):
     """
     # return c0 * (0.5*(R**2 - R0**2)**2 + 0.5*a**2*Z**2 - 0.25*b*Z**2)
     return 0.5 * (c0 * R**2 - b) * Z**2 + (a - c0) / 8 * (R**2 - R0**2)**2
+
+
+# get the value of psi at a given R, Z pair for constants R0, a, b, c0
+####################################################################################################
+def progress_bar(progress, total, length=40, message=""):
+    percent = 100 * (progress / total)
+    filled = int(length * progress // total)
+    bar = '█' * filled + '-' * (length - filled)
+    sys.stdout.write(f'{message}\r|{bar}| {percent:6.2f}%')
+    sys.stdout.flush()
+    return
